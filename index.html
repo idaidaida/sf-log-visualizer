@@ -68,12 +68,12 @@
 
         <script type="module">
 
-            import parseData from './js/analyzeData.js';
             import UmlDiagram from './js/uml-diagram.js';
 
             let umlDiagram;
 
             function loadData(){
+                console.log('test');
                 resetScreen();
                 const file = document.getElementById("file").files[0];
                 umlDiagram = new UmlDiagram();
@@ -166,7 +166,6 @@
     <script src="./js/underscore-min.js"></script>
     <script src="./js/sequence-diagram-min.js"></script>
     <script src="./js/select2.min.js"></script>
-    <script src="./js/main.js"></script>
     <script src="./js/uml-diagram.js"></script>
     <script src="https://rawgit.com/kimmobrunfeldt/progressbar.js/master/dist/progressbar.min.js"></script>
     <script>
