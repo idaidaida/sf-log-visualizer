@@ -1,0 +1,30 @@
+.headline {
+    height: 70vh;
+}
+
+.container-fluid {
+    margin-right: auto;
+    margin-left: auto;
+    max-width: 96%;
+}
+
+.border-right{
+    border-right: solid lightgray thin;
+}
+
+.left-menu{
+    min-height: 100vh;
+}
+
+svg{
+    display:block;
+}
+
+.note rect, .note path {
+    fill: rgba(255, 0, 0, 0.905);
+    stroke: none
+}
+
+.note text{
+    fill: white;
+}

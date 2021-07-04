@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SFLogVisualizer</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="./css/select2.min.css">
+    <link rel="stylesheet" href="./css/style.css">
+
+
+</head>
+
+<body>
+    <main>
+        <nav class="navbar navbar-dark bg-primary py-1">
+            <div class="container-fluid">
+                <span class="navbar-brand">SF log visualizer</span>
+            </div>
+        </nav>
+        <div class="container-fluid py-3">
+            <div class="row">
+                <div class="col-3 border-right py-4 left-menu">
+                    <div>
+                        <p>
+                            <div class="input-field mt-3">
+                                <div class="form-group">
+                                    <label class="text-muted small"><span class="mr-1">Upload file</span><span class="badge badge-danger">Required</span></label>
+                                    <div class="custom-file">
+                                        <input type="file" class="custom-file-input" id="file">
+                                        <label class="custom-file-label" for="file">Upload salesforce log file</label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div id="methods-dropdownlist" class="form-group"></div>
+                                    <button class="btn btn-primary" id="display-sequence-button" style="display: none;">Submit</button>
+                                    <div class="form-group pt-3" id="message" style="display:none;">
+                                        <p class="text-danger"># After clicking submit buttn, It may take a few minutes to display sequences depending on the file size.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </p>
+                    </div>
+                </div>
+                <div class="col-9 py-4">
+                    <div class="text-center">
+                    </div>
+                    <div id="diagram">
+                        <div class="jumbotron headline" id="jumbotron">
+                            <h1 class="display-4">Welocome!</h1>
+                            <p class="lead">This is Salesforce log visualier. You can generate UML sequence from your salesforce logs.This application don't store any information.This application just works on your browser by javascript.</p>
+                            <hr>
+                            <section>
+                                <h5>Usage</h5>
+                                <ul>
+                                    <li>Choose salesforce log file at left menu</li>
+                                    <li>Click Submit button</li>
+                                    <li>After Waite a few minutes, you can get sequence diagram</li>
+                                    <li>optionaly you can filter by methods</li>
+                                </ul>
+                            </section>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script type="module">
+
+            import parseData from './js/analyzeData.js';
+            import UmlDiagram from './js/uml-diagram.js';
+
+            let umlDiagram;
+
+            function loadData(){
+                resetScreen();
+                const file = document.getElementById("file").files[0];
+                umlDiagram = new UmlDiagram();
+                (async ()=> {
+                    await umlDiagram.loadData(file);
+                    displayMethodDropdownList();
+                })();
+            }
+
+            function displayMethodDropdownList(){
+
+                // get dropdown field
+                let dropdownField = document.getElementById("methods-dropdownlist");
+
+                // add label
+                let label = document.createElement("label");
+                label.className = "text-muted small";
+                label.innerText = 'Filter by method'
+                dropdownField.appendChild(label);
+
+                // add dropdown list
+                let select = document.createElement("select");
+                select.id = 'targetMethods';
+                select.style = 'width:100%';
+                dropdownField.appendChild(select);
+            
+                // add default dropdonw contents
+                var option = document.createElement("option");
+                option.text = '- Method Filter (None) -';
+                option.value = 0;
+                select.appendChild(option);
+                for (let [key, value] of umlDiagram.getMethods()) {
+                    var option = document.createElement("option");
+                    option.text = key;
+                    option.value = key;
+                    select.appendChild(option);
+                    $('#targetMethods').select2();
+                }
+
+                // display submit button
+                document.getElementById("display-sequence-button").style.display = 'block';
+                document.getElementById("message").style.display = 'block';
+            }
+
+
+            function displayUmlSequence(){
+
+                console.log(umlDiagram.getSequences());
+
+                document.getElementById("diagram").innerHTML = '';
+
+                let targetMethodName = document.getElementById("targetMethods").value;
+
+                let sequenceList = umlDiagram.getFilterdSequences(targetMethodName);
+
+                if(sequenceList.length > 1){
+                    let h3 = document.createElement('h3');
+                    h3.innerHTML = 'this method appears ' + sequenceList.length + ' times.'
+                    document.getElementById("diagram").appendChild(h3);
+                }
+
+                for (let index = 0; index < sequenceList.length; index++) {
+
+                    let diagram = Diagram.parse(String.raw `${sequenceList[index].join('')}`);
+                    diagram.drawSVG("diagram", {
+                        theme: 'simple'
+                    });
+                }
+
+            }
+
+            function resetScreen(){
+                document.getElementById("diagram").innerHTML = '';
+                document.getElementById("methods-dropdownlist").innerHTML = '';
+                document.getElementById("display-sequence-button").style.display = 'none';
+            }
+
+            document.querySelector('#file').addEventListener('change', loadData);
+            document.querySelector('#display-sequence-button').addEventListener('click', displayUmlSequence);
+        </script>
+    </main>
+
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.js"></script>
+    <script src="./js/webfont.js"></script>
+    <script src="./js/snap.svg-min.js"></script>
+    <script src="./js/underscore-min.js"></script>
+    <script src="./js/sequence-diagram-min.js"></script>
+    <script src="./js/select2.min.js"></script>
+    <script src="./js/main.js"></script>
+    <script src="./js/uml-diagram.js"></script>
+    <script src="https://rawgit.com/kimmobrunfeldt/progressbar.js/master/dist/progressbar.min.js"></script>
+    <script>
+        bsCustomFileInput.init();
+    </script>
+</body>
+
+</html>
