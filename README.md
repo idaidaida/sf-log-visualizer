@@ -1,5 +1,5 @@
 # SF log visualizer
-This application generate UML Sequence from salesforce debag log.
+This application generate UML Sequence from salesforce debug log.
 
 ![image](https://user-images.githubusercontent.com/23579038/124467555-f51b2680-ddd2-11eb-9c18-b3c18408cc7a.png)
 
@@ -11,5 +11,5 @@ When UML sequence is too large, You can filter by method.
 
 # Good point
 This application works by javascript.
-Salesforce debag log files you selected are not uploaded to server side.
+Salesforce debug log files you selected are not uploaded to server side.
 So this is very safe.
