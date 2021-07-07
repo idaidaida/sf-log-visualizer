@@ -44,7 +44,7 @@
                         </p>
                     </div>
                 </div>
-                <div class="col-9 py-4">
+                <div class="col-9 py-4" style="overflow-x: scroll;">
                     <div class="text-center">
                     </div>
                     <div id="diagram">
@@ -73,6 +73,7 @@
         <script type="module">
 
             import UmlDiagram from './js/uml-diagram.js';
+            
 
             let umlDiagram;
 
@@ -157,6 +158,7 @@
 
             document.querySelector('#file').addEventListener('change', loadData);
             document.querySelector('#display-sequence-button').addEventListener('click', displayUmlSequence);
+
         </script>
     </main>
 
